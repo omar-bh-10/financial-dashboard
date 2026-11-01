@@ -22,3 +22,5 @@ A web application built with Flask that allows users to upload a bank transactio
 - HTML/CSS
 
 ## Project Structure
+
+project/ │ ├── app.py ├── requirements.txt │ ├── uploads/ │ ├── static/ │ └── charts/ │ └── templates/ └── index.html
