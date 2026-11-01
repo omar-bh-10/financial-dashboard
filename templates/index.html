@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Tableau de bord financier</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Feuille de style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- JavaScript -->
+    <script defer src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+<body>
+    <!-- Vidéo d'arrière-plan -->
+    <video class="bg-video" autoplay muted loop>
+        <source src="{{ url_for('static', filename='videos/bg.mp4') }}" type="video/mp4">
+        Votre navigateur ne prend pas en charge la lecture vidéo.
+    </video>
+
+    <!-- Superposition -->
+    <div class="overlay"></div>
+
+    <!-- Conteneur principal -->
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="logo">
+                <span class="logo-icon">₿</span>
+                <span class="logo-text">FinSight</span>
+            </div>
+            <div class="header-right">
+                <span class="tag">Analyse bancaire</span>
+            </div>
+        </header>
+
+        <!-- Messages de notification -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Section d'importation -->
+        <section class="upload-section glass-card fade-in">
+            <div class="upload-text">
+                <h1>Tableau de bord financier</h1>
+                <p>Importez votre fichier Excel contenant vos transactions bancaires pour visualiser instantanément votre situation financière.</p>
+                <ul class="upload-hints">
+                    <li><strong>Format accepté :</strong> .xlsx</li>
+                    <li><strong>Colonnes obligatoires :</strong> Date, Description, Amount</li>
+                </ul>
+            </div>
+
+            <form class="upload-form" action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data">
+                <label for="file" class="file-label">
+                    <span class="file-icon">📁</span>
+                    <span class="file-text">Choisir un fichier Excel</span>
+                    <input type="file" id="file" name="file" accept=".xlsx">
+                </label>
+
+                <button type="submit" class="upload-btn">
+                    Analyser les transactions
+                </button>
+            </form>
+        </section>
+
+        <!-- Contenu du tableau de bord -->
+        {% if data %}
+        <section class="kpi-section fade-in">
+
+            <div class="kpi-card glass-card">
+                <h3>Revenus totaux</h3>
+                <p class="kpi-value positive">€{{ "{:,.2f}".format(data.total_revenue) }}</p>
+            </div>
+
+            <div class="kpi-card glass-card">
+                <h3>Dépenses totales</h3>
+                <p class="kpi-value negative">€{{ "{:,.2f}".format(data.total_expenses) }}</p>
+            </div>
+
+            <div class="kpi-card glass-card">
+                <h3>Solde actuel</h3>
+                {% if data.current_balance >= 0 %}
+                    <p class="kpi-value positive">€{{ "{:,.2f}".format(data.current_balance) }}</p>
+                {% else %}
+                    <p class="kpi-value negative">€{{ "{:,.2f}".format(data.current_balance) }}</p>
+                {% endif %}
+            </div>
+
+            <div class="kpi-card glass-card">
+                <h3>Nombre de transactions</h3>
+                <p class="kpi-value neutral">{{ data.num_transactions }}</p>
+            </div>
+
+        </section>
+
+        <!-- Détails financiers -->
+        <section class="details-section fade-in">
+
+            <div class="detail-card glass-card">
+                <h3>Dépense la plus élevée</h3>
+                <p class="detail-amount negative">€{{ "{:,.2f}".format(data.highest_expense) }}</p>
+                <p class="detail-desc">{{ data.highest_expense_desc }}</p>
+            </div>
+
+            <div class="detail-card glass-card">
+                <h3>Revenu le plus élevé</h3>
+                <p class="detail-amount positive">€{{ "{:,.2f}".format(data.highest_revenue) }}</p>
+                <p class="detail-desc">{{ data.highest_revenue_desc }}</p>
+            </div>
+
+        </section>
+
+        <!-- Graphiques -->
+        <section class="charts-section fade-in">
+
+            <div class="chart-card glass-card">
+                <h3>Évolution des transactions</h3>
+                <img src="{{ url_for('static', filename='charts/' + charts.line_chart) }}" alt="Graphique de l'évolution des transactions">
+            </div>
+
+            <div class="chart-card glass-card">
+                <h3>Répartition des dépenses</h3>
+                <img src="{{ url_for('static', filename='charts/' + charts.pie_chart) }}" alt="Graphique circulaire des dépenses">
+            </div>
+
+            <div class="chart-card glass-card">
+                <h3>Comparaison des revenus et des dépenses</h3>
+                <img src="{{ url_for('static', filename='charts/' + charts.bar_chart) }}" alt="Graphique comparatif des revenus et des dépenses">
+            </div>
+
+        </section>
+
+        {% else %}
+
+        <!-- État initial sans données -->
+        <section class="empty-state fade-in">
+            <div class="glass-card empty-card">
+                <h2>Aucune donnée disponible</h2>
+                <p>Importez un fichier Excel pour afficher vos statistiques financières et vos graphiques.</p>
+            </div>
+        </section>
+
+        {% endif %}
+
+        <!-- Pied de page -->
+        <footer class="dashboard-footer">
+            <p>FinSight &mdash; Tableau de bord moderne d'analyse financière</p>
+        </footer>
+
+    </div>
+</body>
+</html>
+```
